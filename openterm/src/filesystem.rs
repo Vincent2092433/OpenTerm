@@ -1,75 +1,83 @@
 use std::env;
 use std::fs::{self, File};
-use std::io::Read;
-
+use std::io::{Read, Write};
 
 pub fn pwd() {
-    println!("{}", env::current_dir().unwrap().display());
-}
-
-
-pub fn ls() {
-
-    if let Ok(files) = fs::read_dir(".") {
-
-        for file in files {
-
-            if let Ok(entry) = file {
-                println!("{}", entry.file_name().to_string_lossy());
-            }
-        }
+    match env::current_dir() {
+        Ok(path) => println!("{}", path.display()),
+        Err(e) => println!("Error: {}", e),
     }
 }
 
+pub fn ls() {
+    match fs::read_dir(".") {
+        Ok(entries) => {
+            for entry in entries {
+                match entry {
+                    Ok(file) => {
+                        println!("{}", file.file_name().to_string_lossy());
+                    }
+                    Err(e) => println!("Error: {}", e),
+                }
+            }
+        }
+        Err(e) => println!("Error: {}", e),
+    }
+}
 
 pub fn cd(path: &str) {
-
     if let Err(e) = env::set_current_dir(path) {
         println!("Error: {}", e);
     }
 }
 
-
 pub fn mkdir(name: &str) {
-
-    if let Err(e) = fs::create_dir(name) {
-        println!("Error: {}", e);
+    match fs::create_dir(name) {
+        Ok(_) => println!("Directory '{}' created.", name),
+        Err(e) => println!("Error: {}", e),
     }
 }
-
 
 pub fn touch(name: &str) {
-
-    if let Err(e) = File::create(name) {
-        println!("Error: {}", e);
+    match File::create(name) {
+        Ok(_) => println!("File '{}' created.", name),
+        Err(e) => println!("Error: {}", e),
     }
 }
 
-
 pub fn cat(name: &str) {
-
     let mut file = match File::open(name) {
-
         Ok(file) => file,
-
         Err(e) => {
             println!("Error: {}", e);
             return;
         }
     };
 
-
     let mut content = String::new();
 
-    file.read_to_string(&mut content).unwrap();
-
-    println!("{}", content);
+    match file.read_to_string(&mut content) {
+        Ok(_) => println!("{}", content),
+        Err(e) => println!("Error: {}", e),
+    }
 }
 
+pub fn write_file(name: &str, text: &str) {
+    match File::create(name) {
+        Ok(mut file) => {
+            if let Err(e) = file.write_all(text.as_bytes()) {
+                println!("Error: {}", e);
+            } else {
+                println!("Saved '{}'.", name);
+            }
+        }
+        Err(e) => println!("Error: {}", e),
+    }
+}
 
 pub fn rm(name: &str) {
-
-    if let Err(e) = fs::remove_file(name) {
-        println!("Error: {}", e);
+    match fs::remove_file(name) {
+        Ok(_) => println!("File '{}' removed.", name),
+        Err(e) => println!("Error: {}", e),
     }
 }

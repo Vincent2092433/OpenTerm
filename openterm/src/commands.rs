@@ -1,5 +1,13 @@
+use crate::app_manager;
+use crate::config;
 use crate::filesystem;
-use std::process::Command;
+use crate::network;
+use crate::package_manager;
+use crate::process;
+use crate::security;
+use crate::system;
+
+use std::io::{self, Write};
 
 pub fn execute(input: &str) -> bool {
     let args: Vec<&str> = input.split_whitespace().collect();
@@ -11,19 +19,44 @@ pub fn execute(input: &str) -> bool {
     match args[0] {
         "help" => {
             println!("================ OpenTerm Commands ================");
-            println!("help                 Show this help menu");
+            println!("help                 Show help");
+            println!("about                About OpenTerm");
+            println!("sysinfo              Show system information");
+            println!("version              Show version");
+            println!("whoami               Show current user");
             println!("pwd                  Show current directory");
             println!("ls                   List files");
-            println!("cd <directory>       Change directory");
-            println!("mkdir <directory>    Create a directory");
-            println!("touch <file>         Create a file");
-            println!("cat <file>           Display file contents");
-            println!("rm <file>            Delete a file");
+            println!("cd <dir>             Change directory");
+            println!("mkdir <dir>          Create directory");
+            println!("touch <file>         Create file");
+            println!("cat <file>           Read file");
+            println!("rm <file>            Remove file");
             println!("echo <text>          Print text");
-            println!("clear                Clear the screen");
+            println!("clear                Clear screen");
+            println!("pkg                  Package manager");
+            println!("config               Configuration");
+            println!("app                  Application manager");
+            println!("security             Security toolkit");
+            println!("network              Network toolkit");
             println!("exit                 Exit OpenTerm");
             println!("===================================================");
         }
+
+        "about" => {
+            println!("==================================");
+            println!("          SpellShark OS");
+            println!("==================================");
+            println!("Terminal : OpenTerm");
+            println!("Version  : 0.8.0");
+            println!("Engine   : Rust");
+            println!("==================================");
+        }
+
+        "sysinfo" => system::info(),
+
+        "version" => system::version(),
+
+        "whoami" => system::whoami(),
 
         "pwd" => filesystem::pwd(),
 
@@ -79,6 +112,191 @@ pub fn execute(input: &str) -> bool {
 
         "clear" => {
             print!("\x1B[2J\x1B[1;1H");
+            io::stdout().flush().unwrap();
+        }
+                "pkg" => {
+            if args.len() < 2 {
+                package_manager::help();
+            } else {
+                match args[1] {
+                    "help" => package_manager::help(),
+
+                    "list" => package_manager::list(),
+
+                    "install" => {
+                        if args.len() > 2 {
+                            package_manager::install(args[2]);
+                        } else {
+                            println!("Usage: pkg install <name>");
+                        }
+                    }
+
+                    "remove" => {
+                        if args.len() > 2 {
+                            package_manager::remove(args[2]);
+                        } else {
+                            println!("Usage: pkg remove <name>");
+                        }
+                    }
+
+                    "info" => {
+                        if args.len() > 2 {
+                            package_manager::info(args[2]);
+                        } else {
+                            println!("Usage: pkg info <name>");
+                        }
+                    }
+
+                    "search" => {
+                        if args.len() > 2 {
+                            package_manager::search(args[2]);
+                        } else {
+                            println!("Usage: pkg search <name>");
+                        }
+                    }
+
+                    _ => println!("Unknown pkg command"),
+                }
+            }
+        }
+
+        "config" => {
+            if args.len() < 2 {
+                config::list();
+            } else {
+                match args[1] {
+                    "list" => config::list(),
+
+                    "get" => {
+                        if args.len() > 2 {
+                            config::get(args[2]);
+                        } else {
+                            println!("Usage: config get <key>");
+                        }
+                    }
+
+                    "set" => {
+                        if args.len() > 3 {
+                            config::set(args[2], args[3]);
+                        } else {
+                            println!("Usage: config set <key> <value>");
+                        }
+                    }
+
+                    _ => println!("Unknown config command"),
+                }
+            }
+        }
+
+        "app" => {
+            if args.len() < 2 {
+                app_manager::help();
+            } else {
+                match args[1] {
+                    "help" => app_manager::help(),
+
+                    "list" => app_manager::list(),
+
+                    "create" => {
+                        if args.len() > 2 {
+                            app_manager::create(args[2]);
+                        } else {
+                            println!("Usage: app create <name>");
+                        }
+                    }
+
+                    "remove" => {
+                        if args.len() > 2 {
+                            app_manager::remove(args[2]);
+                        } else {
+                            println!("Usage: app remove <name>");
+                        }
+                    }
+
+                    "info" => {
+                        if args.len() > 2 {
+                            app_manager::info(args[2]);
+                        } else {
+                            println!("Usage: app info <name>");
+                        }
+                    }
+
+                    "run" => {
+                        if args.len() > 2 {
+                            app_manager::run(args[2]);
+                        } else {
+                            println!("Usage: app run <name>");
+                        }
+                    }
+
+                    _ => println!("Unknown app command"),
+                }
+            }
+        }
+                "security" => {
+            if args.len() < 2 {
+                security::help();
+            } else {
+                match args[1] {
+                    "help" => security::help(),
+
+                    "hash" => {
+                        if args.len() > 2 {
+                            security::hash(args[2]);
+                        } else {
+                            println!("Usage: security hash <text>");
+                        }
+                    }
+
+                    "encode" => {
+                        if args.len() > 2 {
+                            security::encode(args[2]);
+                        } else {
+                            println!("Usage: security encode <text>");
+                        }
+                    }
+
+                    "decode" => {
+                        if args.len() > 2 {
+                            security::decode(args[2]);
+                        } else {
+                            println!("Usage: security decode <text>");
+                        }
+                    }
+
+                    "random" => security::random(),
+
+                    _ => println!("Unknown security command"),
+                }
+            }
+        }
+
+        "network" => {
+            if args.len() < 2 {
+                network::help();
+            } else {
+                match args[1] {
+                    "help" => network::help(),
+
+                    "ping" => {
+                        if args.len() > 2 {
+                            network::ping(args[2]);
+                        } else {
+                            println!("Usage: network ping <host>");
+                        }
+                    }
+
+                    "dns" => {
+                        if args.len() > 2 {
+                            network::dns(args[2]);
+                        } else {
+                            println!("Usage: network dns <host>");
+                        }
+                    }
+
+                    _ => println!("Unknown network command"),
+                }
+            }
         }
 
         "exit" => {
@@ -87,23 +305,7 @@ pub fn execute(input: &str) -> bool {
         }
 
         _ => {
-            let mut command = Command::new(args[0]);
-
-            if args.len() > 1 {
-                command.args(&args[1..]);
-            }
-
-            match command.status() {
-                Ok(status) => {
-                    if !status.success() {
-                        println!("Command exited with status: {}", status);
-                    }
-                }
-
-                Err(_) => {
-                    println!("Unknown command: {}", args[0]);
-                }
-            }
+            process::run(args[0], &args[1..]);
         }
     }
 
