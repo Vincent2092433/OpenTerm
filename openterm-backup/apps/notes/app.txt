@@ -1,4 +1,0 @@
-Name: notes
-Version: 1.0.0
-Author: SpellShark
-Description: notes

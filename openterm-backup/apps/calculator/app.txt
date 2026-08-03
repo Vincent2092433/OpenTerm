@@ -1,4 +1,0 @@
-Name: calculator
-Version: 1.0.0
-Author: SpellShark
-Description: calculator application
