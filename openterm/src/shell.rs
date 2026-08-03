@@ -49,11 +49,12 @@ pub fn start() {
     let mut rl = DefaultEditor::new()
         .unwrap();
 
+let history_file = ".openterm_history";
 
-
+let _ = rl.load_history(history_file);
     loop {
 
-
+let _ = rl.save_history(history_file);
         let cwd = env::current_dir()
             .unwrap_or_default()
             .display()
