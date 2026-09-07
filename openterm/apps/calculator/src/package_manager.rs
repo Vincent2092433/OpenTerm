@@ -16,7 +16,8 @@ pub fn help() {
 }
 
 fn get_packages() -> Vec<String> {
-    let content = fs::read_to_string(PACKAGE_FILE).unwrap_or_default();
+    let content = fs::read_to_string(PACKAGE_FILE)
+        .unwrap_or_default();
 
     content
         .lines()

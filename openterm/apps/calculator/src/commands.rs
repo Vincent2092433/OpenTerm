@@ -6,20 +6,11 @@ use crate::package_manager;
 use crate::process;
 use crate::security;
 use crate::system;
-
+use crate::intelligence;
+use crate::plugin_manager;
 use std::io::{self, Write};
 
 pub fn execute(input: &str) -> bool {
-    let input = match input.split_whitespace().next() {
-        Some(command) => match command {
-            "h" => input.replacen("h", "help", 1),
-            "q" => input.replacen("q", "exit", 1),
-            "cls" => input.replacen("cls", "clear", 1),
-            "dir" => input.replacen("dir", "ls", 1),
-            _ => input.to_string(),
-        },
-        None => return true,
-    };
     let args: Vec<&str> = input.split_whitespace().collect();
 
     if args.is_empty() {
@@ -48,6 +39,7 @@ pub fn execute(input: &str) -> bool {
             println!("app                  Application manager");
             println!("security             Security toolkit");
             println!("network              Network toolkit");
+            println!("intel                Intelligence toolkit");
             println!("exit                 Exit OpenTerm");
             println!("===================================================");
         }
@@ -124,7 +116,7 @@ pub fn execute(input: &str) -> bool {
             print!("\x1B[2J\x1B[1;1H");
             io::stdout().flush().unwrap();
         }
-        "pkg" => {
+                "pkg" => {
             if args.len() < 2 {
                 package_manager::help();
             } else {
@@ -243,7 +235,7 @@ pub fn execute(input: &str) -> bool {
                 }
             }
         }
-        "security" => {
+                "security" => {
             if args.len() < 2 {
                 security::help();
             } else {
@@ -309,7 +301,58 @@ pub fn execute(input: &str) -> bool {
             }
         }
 
-        "exit" => {
+      "intel" => {
+
+    if args.len() < 2 {
+        intelligence::help();
+    } else {
+
+        match args[1] {
+
+            "help" => intelligence::help(),
+
+            "domain" => {
+
+                if args.len() > 2 {
+                    intelligence::domain(args[2]);
+                } else {
+                    println!("Usage: intel domain <name>");
+                }
+
+            }
+
+            "ip" => {
+
+                if args.len() > 2 {
+                    intelligence::ip(args[2]);
+                } else {
+                    println!("Usage: intel ip <address>");
+                }
+
+            }
+
+            _ => println!("Unknown intel command")
+
+        }
+
+    }
+
+}  
+}
+
+"plugin" => {
+    if args.len() < 2 {
+        plugin_manager::help();
+    } else {
+        match args[1] {
+            "help" => plugin_manager::help(),
+            "list" => plugin_manager::list(),
+            _ => println!("Unknown plugin command"),
+        }
+    }
+}
+     
+"exit" => {
             println!("Goodbye!");
             return false;
         }
