@@ -1,95 +1,156 @@
-use rustyline::Editor;
-use rustyline::error::ReadlineError;
 use std::env;
 
-use crate::commands;
+use rustyline::history::FileHistory;
 use crate::completer::OpenTermCompleter;
+use rustyline::error::ReadlineError;
+
+use crate::commands;
+
 
 pub fn start() {
+
     let theme = crate::config::get_value("theme");
 
+
     match theme.as_str() {
+
         "cyber" => {
+
             println!("==================================");
             println!("        ⚡ OpenTerm CYBER ⚡");
             println!("==================================");
+
         }
 
+
         "dark" => {
+
             println!("==================================");
             println!("          OpenTerm DARK");
             println!("==================================");
+
         }
 
         _ => {
+
             println!("==================================");
             println!("          OpenTerm v0.7.0");
             println!("==================================");
+
         }
+
     }
+
 
     println!("Cross-platform Developer Terminal");
     println!("Type 'help' for commands.\n");
 
-    let completer = OpenTermCompleter::new();
 
-    let mut rl = match Editor::new() {
-        Ok(editor) => editor,
-        Err(err) => {
-            println!("Failed to start terminal editor: {:?}", err);
-            return;
-        }
-    };
+let mut rl: rustyline::Editor<OpenTermCompleter, FileHistory> =
+    rustyline::Editor::new().unwrap();
 
-    rl.set_helper(Some(completer));
+rl.set_helper(Some(OpenTermCompleter));
 
-    let history_file = ".openterm_history";
+let history_file = ".openterm_history";
 
-    let _ = rl.load_history(history_file);
-
+let _ = rl.load_history(history_file);
     loop {
-        let cwd = env::current_dir().unwrap_or_default().display().to_string();
+
+let _ = rl.save_history(history_file);
+        let cwd = env::current_dir()
+            .unwrap_or_default()
+            .display()
+            .to_string();
+
+
 
         let username = crate::config::get_value("name");
 
+
+
         let prompt = if username.is_empty() {
+
+
             format!("OpenTerm:{}$ ", cwd)
+
+
         } else {
+
+
             format!("{}@OpenTerm:{}$ ", username, cwd)
+
+
         };
 
+
+
+
         match rl.readline(&prompt) {
+
+
+
             Ok(input) => {
+
+
                 let input = input.trim();
 
+
+
                 if input.is_empty() {
+
                     continue;
+
                 }
+
+
 
                 let _ = rl.add_history_entry(input);
 
+
+
                 if !commands::execute(input) {
+
                     break;
+
                 }
 
-                let _ = rl.save_history(history_file);
+
             }
+
+
+
+
 
             Err(ReadlineError::Interrupted) => {
-                println!("^C");
+
+                println!("Press Ctrl+D or type 'exit' to quit.");
+
             }
+
+
+
+
 
             Err(ReadlineError::Eof) => {
+
                 println!("Goodbye!");
                 break;
+
             }
+
+
+
+
 
             Err(err) => {
-                println!("Terminal error: {:?}", err);
+
+                println!("Error: {:?}", err);
                 break;
+
             }
+
         }
+
     }
 
-    let _ = rl.save_history(history_file);
 }

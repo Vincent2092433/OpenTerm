@@ -11,7 +11,11 @@ pub fn help() {
 }
 
 pub fn ping(host: &str) {
-    let status = Command::new("ping").arg("-c").arg("4").arg(host).status();
+    let status = Command::new("ping")
+        .arg("-c")
+        .arg("4")
+        .arg(host)
+        .status();
 
     match status {
         Ok(_) => {}
@@ -20,7 +24,9 @@ pub fn ping(host: &str) {
 }
 
 pub fn dns(host: &str) {
-    let output = Command::new("nslookup").arg(host).output();
+    let output = Command::new("nslookup")
+        .arg(host)
+        .output();
 
     match output {
         Ok(result) => {

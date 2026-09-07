@@ -1,7 +1,9 @@
 use std::process::Command;
 
 pub fn run(program: &str, args: &[&str]) {
-    let output = Command::new(program).args(args).output();
+    let output = Command::new(program)
+        .args(args)
+        .output();
 
     match output {
         Ok(output) => {
